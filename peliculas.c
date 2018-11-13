@@ -33,10 +33,11 @@
 nodoArbolPelicula*PasaPeliculasDeArchivoToArbol(nodoArbolPelicula*ArbolPelis)/// Funcion que levanta registros de peliculas y los carga en el arbol
 {
 
+    int validosPelisActivas=0;
     int validosPelis=CantidadPelisActivas();///se cuenta la cantidad de registros
     stPelicula ArregloAux[validosPelis];///se crea un arreglo de la dimension del total de peliculas
-    cargarArregloPeliculas(ArregloAux, validosPelis);///se carga el arreglo con los registros
-    ArbolPelis=balanceoArbol(ArregloAux, 0, validosPelis);///se pasan las peliculas desde el arreglo al arbol de manera balanceada
+    validosPelisActivas=cargarArregloPeliculasActivas(ArregloAux, validosPelis);///se carga el arreglo con los registros
+    ArbolPelis=balanceoArbol(ArregloAux, 0, validosPelisActivas-1);///se pasan las peliculas desde el arreglo al arbol de manera balanceada
     return ArbolPelis;
 
 }
@@ -46,7 +47,7 @@ nodoArbolPelicula*balanceoArbol(stPelicula arregloDePelis[], int primero, int ul
 
     int medio;
 
-    nodoArbolPelicula* aux = (nodoArbolPelicula*)malloc(sizeof(nodoArbolPelicula));
+    nodoArbolPelicula* aux;
 
     if (primero > ultimo)
 
@@ -300,7 +301,6 @@ nodoArbolPelicula * insertaNodoArbol(nodoArbolPelicula * Arbol, stPelicula Pelic
 
 nodoArbolPelicula*modificarPeliEnArbol(nodoArbolPelicula*ArbolPelis,stPelicula auxPeli)///Funcion que modifica la pelicula en el arbol
 {
-    nodoArbolPelicula* nodoAux = (nodoArbolPelicula*)malloc(sizeof(nodoArbolPelicula));
     if(ArbolPelis)
     {
         if(auxPeli.idPelicula==ArbolPelis->p.idPelicula)
@@ -311,16 +311,16 @@ nodoArbolPelicula*modificarPeliEnArbol(nodoArbolPelicula*ArbolPelis,stPelicula a
         {
             if(ArbolPelis->p.idPelicula<auxPeli.idPelicula)
             {
-                nodoAux=modificarPeliEnArbol(ArbolPelis->der,auxPeli);
+                ArbolPelis->der=modificarPeliEnArbol(ArbolPelis->der,auxPeli);
             }
             else
             {
-                nodoAux=modificarPeliEnArbol(ArbolPelis->izq,auxPeli);
+                ArbolPelis->izq=modificarPeliEnArbol(ArbolPelis->izq,auxPeli);
             }
         }
     }
 
-    return nodoAux;
+    return ArbolPelis;
 }
 
 void preOrder(nodoArbolPelicula*Arbol)
@@ -410,7 +410,7 @@ stPelicula buscarPeliculaID(nodoArbolPelicula*Arbol, int id)
 nodoArbolPelicula*nodoMasDer(nodoArbolPelicula*ArbolPelis)
 {
 
-    if (!ArbolPelis->der)
+    if (ArbolPelis->der)
     {
         ArbolPelis=nodoMasDer(ArbolPelis->der);
     }
@@ -420,7 +420,7 @@ nodoArbolPelicula*nodoMasDer(nodoArbolPelicula*ArbolPelis)
 nodoArbolPelicula*nodoMasIzq(nodoArbolPelicula*ArbolPelis)
 {
 
-    if (!ArbolPelis->izq)
+    if (ArbolPelis->izq)
     {
         ArbolPelis=nodoMasIzq(ArbolPelis->izq);
     }
@@ -591,6 +591,7 @@ nodoArbolPelicula*altaPelicula(nodoArbolPelicula*ArbolPelis) // Funcion general 
             {
                 printf("Ingrese el anio: ");
                 scanf("%i", &peliAux.anio);
+
             }
             while(peliAux.anio<1895 || peliAux.anio>2018);
 
@@ -668,12 +669,12 @@ nodoArbolPelicula* bajaPelicula(nodoArbolPelicula*ArbolPelis)//Elimina peliculas
             fseek(archi, (idPeli)*sizeof(stPelicula), SEEK_SET); // Se lleva el cursor al principio del archivo para moverse desde allí
             fread(&peliAux, sizeof(stPelicula), 1, archi); // Lectura del registro indicado
             peliAux.eliminado=1; // Se cambia el estado de la pelicula a eliminada
-            fseek(archi, (idPeli)*sizeof(stPelicula), SEEK_SET); // Se lleva el cursor al principio del archivo para moverse desde allí
+            fseek(archi, -1*sizeof(stPelicula), SEEK_CUR); // Se lleva el cursor al principio del archivo para moverse desde allí
             fwrite(&peliAux, sizeof(peliAux), 1, archi); // Escribo el nuevo valor de eliminado en el archivo
             printf("\nLa pelicula se elimino correctamente\n");
             printf("\nNombre de la pelicula: %s", peliAux.nombrePelicula);
             printf("\nEstado: %i", peliAux.eliminado);
-            ArbolPelis=modificarPeliEnArbol(ArbolPelis, peliAux);
+            ArbolPelis=borrarNodoArbol(ArbolPelis, peliAux.idPelicula);
         }
         else // Si no confirma, se sale del programa
         {
@@ -742,8 +743,7 @@ nodoArbolPelicula* mostrarPeliParaModif(nodoArbolPelicula*ArbolPelis)//Modificac
             {
                 a=menuModifPelis(ArbolPelis);
 
-                fseek(archi, (id-1)*sizeof(stPelicula), SEEK_SET); // Se lleva el cursor al principio del archivo para moverse desde allí
-                fread(&aux, sizeof(aux), 1, archi); // Lectura del registro indicado
+
 
                 switch (a)
                 {
@@ -800,6 +800,7 @@ nodoArbolPelicula* mostrarPeliParaModif(nodoArbolPelicula*ArbolPelis)//Modificac
 
                     printf("Ingrese la nueva valoracion de la pelicula(Escala del 1 al 5: 1 pesima - 5 excelente): \n");
                     scanf("%i", &aux.valoracion);
+
                     printf("Desea Modificar otro campo? s/n \n");
                     fflush(stdin);
                     scanf("%c", &control);
@@ -818,6 +819,10 @@ nodoArbolPelicula* mostrarPeliParaModif(nodoArbolPelicula*ArbolPelis)//Modificac
 
                     printf("Ingrese el nuevo estado en catalogo de la pelicula(0 si activa - 1 si eliminada): \n");
                     scanf("%i", &aux.eliminado);
+                    if(aux.eliminado==0)
+                        ArbolPelis=insertaNodoArbol(ArbolPelis, aux);
+                    else
+                        ArbolPelis=borrarNodoArbol(ArbolPelis, aux.idPelicula);
                     printf("Desea Modificar otro campo? s/n \n");
                     fflush(stdin);
                     scanf("%c", &control);
@@ -828,13 +833,12 @@ nodoArbolPelicula* mostrarPeliParaModif(nodoArbolPelicula*ArbolPelis)//Modificac
                     break;
 
                 }
-
-                fseek(archi, (id-1)*sizeof(stPelicula), SEEK_SET); // Se lleva el cursor al principio del archivo para moverse desde allí
+                fseek(archi, (-1)*sizeof(stPelicula), SEEK_CUR); // Se lleva el cursor al principio del archivo para moverse desde allí
                 fwrite(&aux, sizeof(aux), 1, archi); // Lectura del registro indicado
-                ArbolPelis=modificarPeliEnArbol(ArbolPelis, aux);//Modifica el registro en el arbol de peliculas
-
+                if(!aux.eliminado)
+                    ArbolPelis=modificarPeliEnArbol(ArbolPelis,aux);
             }
-            while(a!=0&&control=='s'); // Mientras se desee continuar
+            while(a!=0 && control=='s'); // Mientras se desee continuar
         }
 
         else
@@ -857,8 +861,6 @@ void consultaPeliAdmin()//Se Muestra info por ID al Admin
     FILE *archi;
 
     archi=fopen(ARCHIPELI,"rb");
-
-
 
     int validos=0, id=0, i = 0, flag=0;
 
@@ -912,7 +914,7 @@ void consultaPeliAdmin()//Se Muestra info por ID al Admin
 
 
 
-int cargarArregloPeliculas(stPelicula arregloPelis[], int validosPelis)
+int cargarArregloPeliculasActivas(stPelicula arregloPelis[], int validosPelis)
 {
     FILE *archi;
 
@@ -928,14 +930,44 @@ int cargarArregloPeliculas(stPelicula arregloPelis[], int validosPelis)
     }
     else
     {
-        for(i=0; fread(&peli, sizeof(stPelicula), 1, archi)>0&&i<validosPelis; i++)
+        while(fread(&peli, sizeof(stPelicula), 1, archi)>0)
+        {
+                if(!peli.eliminado)
+                {
+                    arregloPelis[i]=peli;
+                    i++;
+                }
+
+        }
+        fclose(archi);
+    }
+
+    return i;
+}
+
+void cargarArregloPeliculas(stPelicula arregloPelis[], int validosPelis)
+{
+    FILE *archi;
+
+    archi=fopen(ARCHIPELI, "rb");
+
+    stPelicula peli;
+
+    int i;
+
+    if (archi==NULL)
+    {
+        printf("\n ERROR");
+    }
+    else
+    {
+        for(i=0; fread(&peli, sizeof(stPelicula), 1, archi)>0 && !peli.eliminado && i<validosPelis ; i++)
         {
             arregloPelis[i]=peli;
         }
         fclose(archi);
     }
 
-    return validosPelis;
 }
 
 void insertar(stPelicula arregloPelis[], int posicion)
