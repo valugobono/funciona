@@ -88,7 +88,6 @@ int validarUsuExisteArrayId(int id, stCelda*arregloUsuActivos, int validos) // V
     return flag; // Devuelve el valor de flag para su proceso en la función que la invoca
 }
 
-
 int validarTipoAlfanumerico(char cadena[])  // Devuelve 1 si la variable analizada es cadena, 0 si no lo es
 {
 
@@ -367,13 +366,15 @@ stCelda * cargarArchiUsuToArreglo(stCelda*arregloUsuActivos, int *validos, nodoA
 }
 
 
-stCelda* altaUsuarios(stCelda*arregloUsuActivos, int *validos)// Funcion general de alta de usuarios
+void altaUsuarios(stCelda*arregloUsuActivos, int *validos)// Funcion general de alta de usuarios
 {
 
     // Declaración de variables locales
     int validacionPais=0;
-    SYSTEMTIME str_t; // Carga el tiempo del sistema, de libreria Windows para chequear edad sobre el año de nacimiento ingresado
-    int i,Exito,longPass;
+    SYSTEMTIME str_t;
+    int longPass=0;
+    int i=0;
+    int Exito=0;
     char passAux[11];
     char control='s'; // Variable de control para ciclo while principal de solicitud de datos de usuarios
 
@@ -401,15 +402,13 @@ stCelda* altaUsuarios(stCelda*arregloUsuActivos, int *validos)// Funcion general
 
         while(control=='s')
         {
-            printf("Ingrese un nombre de usuario alfabetico(solo letras minusculas): ");
+            printf("Ingrese un nombre de usuario alfabetico(solo letras: ");
             fflush(stdin);
             gets(usuAux.nombreUsuario);
-             i=0;
-            Exito=0;
 
-            while (Exito==0 && i<4)
+            while (!Exito && i<4)
             {
-                if(validarUsuExisteNombre(usuAux.nombreUsuario, arregloUsuActivos, *validos)) // Chequea que el nombre de usuario en ingreso no exista en el archivo para evitar que se duplique mediante un flag
+                if(validarUserExiste(usuAux.nombreUsuario)) // Chequea que el nombre de usuario en ingreso no exista en el archivo para evitar que se duplique mediante un flag
                 {
                     printf("Ese usuario ya existe, tiene %d intentos mas\n", 4-i); // En total se ofrecen cuatro intentos de ingreso por nombre de usuario existente en la base
                     printf("Ingrese un nuevo nombre de usuario: ");
@@ -440,7 +439,7 @@ stCelda* altaUsuarios(stCelda*arregloUsuActivos, int *validos)// Funcion general
             {
                 printf("El ingreso ha sido exitoso\n"); // Confirma si el ingreso del nombre de usuario fue exittoso
 
-                printf("Ingrese la contrasenia(maximo 10 caracteres alfanumericos): ");
+                printf("Ingrese la contrasenia(maximo 10 caracteres): ");
                 fflush(stdin);
                 gets(passAux);
                 longPass=validarLongPass(passAux); // Chequea que el nombre de usuario no supere los 10 caracteres mediante un flag
@@ -491,11 +490,12 @@ stCelda* altaUsuarios(stCelda*arregloUsuActivos, int *validos)// Funcion general
 
                 do //Solicitud de datos del usuario mientras el país no sea sólo de caracteres
                 {
-                    printf("Ingrese el pais(Solo letras): ");
+                    printf("Ingrese el pais(Solo caracteres): ");
                     fflush(stdin);
                     gets(usuAux.pais);
-                    validacionPais=validarTipoChar(usuAux.pais); // Filtra que tome solo letras
-                }while(validacionPais!=1);
+                    validacionPais=validarTipoChar(usuAux.pais);
+                }
+                while(validacionPais==0);
 
                 usuAux.eliminado=0; // Se asigna flag negativo como valor predeterminado
 
@@ -512,33 +512,31 @@ stCelda* altaUsuarios(stCelda*arregloUsuActivos, int *validos)// Funcion general
 
                 fwrite(&usuAux, sizeof(usuAux), 1, archi); // Se graban los datos del nuevo usuario en el archivo
 
-                printf("Desea continuar ingresando usuarios(s/n)? "); // Se consulta si se desea continuar ingresando usuarios en esta sesión
+                printf("Desea continuar ingresando usuarios(s/n?"); // Se consulta si se desea continuar ingresando usuarios en esta sesión
                 fflush(stdin);
                 scanf("%c", &control);
 
-//                if(control=='s')
-//                {
-//                    system("cls");
-//                    puts("****** ALTA DE OTRO USUARIO ******\n");
-//                }
+                if(control=='s')
+                {
+                    system("cls");
+                    puts("****** ALTA DE OTRO USUARIO ******\n");
+                }
 
             }
 
         }
         fclose(archi); // Cierre del archivo
     }
-    return arregloUsuActivos;
 }
 
 
 
 
-void bajaUsuario(stCelda*arregloUsuActivos, int validos) //Elimina usuarios pasando asignando valor verdadero al campo "eliminado"
+void bajaUsuario(stCelda*arregloUsuActivos, int * validos) //Elimina usuarios pasando asignando valor verdadero al campo "eliminado"
 {
     char control='n';
     int idUsu=0;
     int posId=0;
-
 
     stUsuario usuAux;
 
@@ -555,17 +553,16 @@ void bajaUsuario(stCelda*arregloUsuActivos, int validos) //Elimina usuarios pasa
         system("cls");
         printf("\n");
         printf("\n*****************************************************");
-        printf("\n\t\tBAJA DE USUARIO");
+        printf("\n\tBAJA DE USUARIOS");
         printf("\n*****************************************************");
         printf("\n");
-
 
         printf("\nIngrese el ID del usuario a eliminar: ");
         scanf("%i", &idUsu);
 
-        if(validarUsuExisteArrayId(idUsu, arregloUsuActivos, validos) && validarUsuActivo(idUsu, arregloUsuActivos, validos))
+        if(validarUsuExisteArrayId(idUsu, arregloUsuActivos, *validos) && validarUsuActivo(idUsu, arregloUsuActivos, *validos))
         {
-            posId=buscarPosUsuarioPorId(idUsu, arregloUsuActivos, validos);
+            posId=buscarPosUsuarioPorId(idUsu, arregloUsuActivos, *validos);
             imprimirUsuarioSinPass(arregloUsuActivos[posId].usr);
             printf("\nEsta seguro de que desea eliminar el usuario(s/n?"); // Chequea nuevamente si quiere avanzar con la baja de la pelicula
             fflush(stdin);
@@ -745,7 +742,7 @@ void consultarUsuario(stCelda*arregloUsuActivos, int validos)
     printf("\n*****************************************************");
     printf("\n");
 
-    printf("Prefiere buscar al usuario por ID(1) o por nombre(2)? \nIngrese su opcion: ");
+    printf("Desea buscar al usuario por ID(1) o por nombre(2)? Ingrese su opcion: ");
     fflush(stdin);
     scanf("%i", &opcion);
 
@@ -790,7 +787,7 @@ void consultarUsuario(stCelda*arregloUsuActivos, int validos)
 }
 
 
-int modificarUsuario(stCelda*arregloUsuActivos, int validos)//Modificacion de usuario para administrador
+int modificarUsuario(stCelda*arregloUsuActivos, int validos)//Modificacion de usuario para administrador - NO se muestra el password
 {
     int id;
 
@@ -1262,8 +1259,9 @@ stCelda* borrarArregloUsu(stCelda*arregloUsuActivos, int *validos)  // Borra el 
     }
 
     *validos=0;
-    free(arregloUsuActivos);
-    //arregloUsuActivos=NULL;
+
+    arregloUsuActivos=NULL;
+  free(arregloUsuActivos);
 
     printf("\nSe ha borrado el arreglo de usuarios activos\n");
 

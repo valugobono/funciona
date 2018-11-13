@@ -93,7 +93,8 @@ nodoArbolPelicula*bajaPelicula(nodoArbolPelicula*ArbolPelis);
 nodoArbolPelicula*mostrarPeliParaModif(nodoArbolPelicula*ArbolPelis);
 void consultaPeliAdmin();
 void insertar(stPelicula arregloPelis[], int posicion);
-int cargarArregloPeliculas(stPelicula arregloPelis[], int validosPelis);
+void cargarArregloPeliculas(stPelicula arregloPelis[], int validosPelis);
+int cargarArregloPeliculasActivas(stPelicula arregloPelis[], int validosPelis);
 void ordenarGenero();
 void ordenarTitulo();
 void ordenacionSeleccion(stPelicula arregloPelis[], int validosPelis);
@@ -103,12 +104,12 @@ void mostrarArregloPelis(stPelicula arregloPelis[], int validos);
 
 // FUNCIONES DE SUBMENUES // Menu principal en main
 void menuUsuario(stCelda * arregloUsuActivos, int validos, stUsuario usr, nodoArbolPelicula * ArbolPelis);
-nodoArbolPelicula * menuAdmin();
-nodoArbolPelicula* menuAdminPelis();
-stCelda * menuAdminUsuarios(stCelda*arregloUsuActivos, int * validos);
+void menuAdmin();
+void menuAdminPelis();
+void menuAdminUsuarios(stCelda*arregloUsuActivos, int * validos);
 void subMenuListados(nodoArbolPelicula*ArbolPelis);
 void loginUser(stCelda*arregloUsuActivos, int validos, nodoArbolPelicula * ArbolPelis);
-nodoArbolPelicula * loguinadm(stCelda**arregloUsuActivos, int * validos, nodoArbolPelicula*ArbolPelis);
+void loguinadm(stCelda*arregloUsuActivos, int * validos, nodoArbolPelicula*ArbolPelis);
 void menumodif(stCelda*arregloUsuActivos, int validos); // Menu de modificación de usuarios
 int menuModifPelis(nodoArbolPelicula*ArbolPelis); //Menu para administrador para seleccion de campo a modificar
 void subMenuMostrarArbol(nodoArbolPelicula * ArbolPelis);
@@ -159,19 +160,18 @@ nodoArbolPelicula*PasaPeliculasDeArchivoToArbol(nodoArbolPelicula*ArbolPelis);
 
 
 // ***** FUNCIONES DE TP2 USUARIOS *****
-stCelda* borrarArregloUsu(stCelda*arregloUsuActivos, int *validos);
 int cantUsuariosActivos(); // Cuenta la cantidad inicial de usuarios activos en el archivo
 int cantUsuariosInactivos(); // Cuenta la cantidad inicial de usuarios inactivos en el archivo
 int cantUsuariosTotales(); // Cuenta la cantidad inicial de usuarios totales en el archivo
 stCelda * cargarArchiUsuToArreglo(stCelda*arregloUsuActivos, int *validos, nodoArbolPelicula * ArbolPelis); // Pasa los registros activos del archivo al arreglo
-stCelda* altaUsuarios(stCelda*arregloUsuActivos, int *validos); // Sesión de alta de usuarios: se ingresan los datos al arreglo y se persisten en el archivo
-void bajaUsuario(stCelda*arregloUsuActivos, int validos); // Modifica el campo "Eliminado" del usuario buscado en el arreglo y se persiste en el archivo
+void altaUsuarios(stCelda*arregloUsuActivos, int *validos); // Sesión de alta de usuarios: se ingresan los datos al arreglo y se persisten en el archivo
+void bajaUsuario(stCelda*arregloUsuActivos, int *validos); // Modifica el campo "Eliminado" del usuario buscado en el arreglo y se persiste en el archivo
 void imprimirUsuarioConPass(stUsuario); // TP 2: Imprime en pantalla los datos del/los usuario/s pasado/s por parámetro - CON PASSWORD P/USUARIO
 void imprimirUsuarioSinPass(stUsuario); // TP 2: Imprime en pantalla los datos del/los usuario/s pasado/s por parámetro - SIN PASSWORD P/ADMIN
 void mostrarUsuariosActivos(stCelda*arregloUsuActivos, int validos); // Muestra lista de usuarios activos con sus respectivas películas
 int buscarPosicionUsuario(char nombreUsuario[], stCelda*arregloUsuActivos, int validos); // Retorna la posicion en el arreglo del usuario buscando por nombre de usuario
 int buscarPosUsuarioPorId(int id, stCelda*arregloUsuActivos, int validos); // Retorna la posicion en el arreglo del usuario buscando por el ID del usuario
-void consultarUsuario(stCelda*arregloUsuActivos, int validos); // Muestra por pantalla los datos del usuario consultado por ID o por nombre
+void consultarUsuario(); // Muestra por pantalla los datos del usuario consultado por ID o por nombre
 int modificarUsuario(stCelda*arregloUsuActivos, int validos); // Solicita el id del usuario y verifica si existe. De existir, continua con el menu "menumodif"
 int cambiarNombreUsu(int id, int pos, stCelda*arregloUsuActivos); // Función invocada por el menu "menumodif" para efectuar el cambio que solicita la misma
 int cambiarPassUsu(int id, int pos, stCelda*arregloUsuActivos);// Función invocada por el menu "menumodif" para efectuar el cambio que solicita la misma
@@ -192,14 +192,13 @@ int agregarString(char arregloNombres[][20], char nombre[], int validos);
 int buscarPosString(char arregloNombres[][20], char nombre[], int validos);
 void listarPelisRecomendadasxGeneroDirector(nodoListaPelicula *PelisVistas,nodoArbolPelicula *ArbolPelis, char *,char *);
 int peliVista(int idPelicula,nodoListaPelicula *PelisVistas);
-nodoListaPelicula * borrarPeliVistaXid(nodoListaPelicula*PelisVistas, int idUsu, int idPeli);
-nodoListaPelicula*borrarUnaPeliVistaLista(nodoListaPelicula*PelisVistas, int idPeli);
-void borrarPeliVistaArchivo(int idUsr, int idPeli);
 
 nodoListaPelicula* borrarPelisVistas(nodoListaPelicula*lista);
 nodoArbolPelicula*borrarNodoArbol(nodoArbolPelicula*ArbolPelis, int idPeli);
 nodoArbolPelicula*nodoMasIzq(nodoArbolPelicula*ArbolPelis);
 nodoArbolPelicula*nodoMasDer(nodoArbolPelicula*ArbolPelis);
 nodoArbolPelicula*borrarArbol(nodoArbolPelicula*ArbolPelis);
+
+void borrarPeliVistaArchivo(int idUsr, int idPeli);
 
 #endif // LIBRERIA_H_INCLUDED

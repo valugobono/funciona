@@ -33,52 +33,6 @@ void PelisxUsuarioArchivoToADL(stCelda*arregloUsu, int posicion, nodoArbolPelicu
     }
 }
 
-//void actualizarPelisVistas(stCelda arregloUsuActivos[], int validos) //Pasaje de peliculas vistas a archivo
-//{
-//    FILE*archi;
-//    archi=fopen(ARCHIPELISUSU, "ab+");
-//    int i=0, j=0, idLocal, cantPelisVistas;
-//    cantPelisVistas=PelisVistasTotales(arregloUsuActivos, validos);
-//    stPelisVistas arregloPelisVistas[cantPelisVistas]; // Genera un arreglo de Peliculas vistas para posteriormente persistir las nuevas peliculas vistas en el archivo
-//    if(archi)
-//    {
-//        idLocal=cantRegistrosTotales()+1;//Leemos la cantidad de registros en el archivo para saber el id
-//        stPelisVistas aux;
-//        for(i=0; i<validos&&j<cantPelisVistas; i++) //recorremos el arreglo de usuarios activos para buscar peliculas que no esten grabadas
-//        {
-//            while(arregloUsuActivos[i].listaPelis)//mientras siga teniendo peliculas seguira iterando la funcion
-//            {
-//                fread(&aux, sizeof(stPelisVistas), 1, archi);
-//                if(!feof(archi)&&arregloUsuActivos[i].usr.idUsuario==aux.idUsuario)
-//                    {
-//                        if(aux.idPelicula!=arregloUsuActivos[i].listaPelis->p.idPelicula)//en caso de no estar grabadas se pasan al arreglo de peliculas vistas
-//                        {
-//                            arregloPelisVistas[j].idUsuario=arregloUsuActivos[i].usr.idUsuario;
-//                            arregloPelisVistas[j].idPelicula=arregloUsuActivos[i].listaPelis->p.idPelicula;
-//                            arregloPelisVistas[j].idPeliVista=idLocal+1;
-//                            idLocal++;
-//                        }
-//                    }
-//                }
-//                arregloUsuActivos[i].listaPelis=arregloUsuActivos[i].listaPelis->sig;//se pasa a la siguiente pelicula del mismo usuario
-//            }
-//        }
-//        fseek(archi, 0, 2);
-//        for(i=0; i<validos; i++)//pasa las nuevas peliculas vistas del arreglo al archivo
-//        {
-//            aux=arregloPelisVistas[i];
-//            fwrite(&aux, sizeof(stPelisVistas), 1, archi);
-//        }
-//        fclose(archi);
-//    }
-//    else
-//    {
-//        printf("No se pudo abrir el archivo de usuarios");
-//    }
-//}
-
-
-
 void actualizarPelisVistas(stCelda*arregloUsuActivos, int validos) //Pasaje de peliculas vistas a archivo
 {
     FILE*archi;
@@ -170,57 +124,38 @@ int validarIdUsuAndPeli(int idUsr, int idPeli) // Valida si el id de la pelicula
     return flag; // Devuelve el valor de flag para su proceso en la función que la invoca
 }
 
-//int validarIDusu(int idUsr) // Valida si el id de la pelicula ingresada actualmente ya existe en el archivo
-//{
-//    stPelisVistas aux;
-//
-//    int flag=1;
-//
-//    FILE * archi;
-//
-//    archi=fopen(ARCHIPELISUSU, "rb"); // Abre al archivo en modo sólo lectura para chequear acceso
-//
-//    if(archi==NULL)
-//    {
-//        printf("No se pudo abrir el archivo para consultar si la pelicula ya existe");
-//        exit(1);
-//    }
-//
-//    else
-//    {
-//
-//        while((fread(&aux, sizeof(stPelicula), 1, archi)>0) && (flag!=1))  // Realiza el proceso mientras haya registros en el archivo
-//        {
-//            if(aux.idUsuario==idUsr)  //Chequea si ambos ids son iguales
-//            {
-//                flag=0; // Si ambos ids son iguales, asigno valor 1 a flag como positivo
-//            }
-//        }
-//    }
-//
-//    fclose(archi); // Cierra el archivo
-//
-//    return flag; // Devuelve el valor de flag para su proceso en la función que la invoca
-//}
-//
-//int PelisVistasTotales(stCelda arregloUsuActivos[], int validos) // Función utilizada para contar la cantidad total de peliculas vistas durante ejecucion del programa
-//{
-//
-//    int cantPelisVistas=0, i; // Variable a retornar
-//
-//    for(i=0; i<validos; i++)
-//    {
-//        nodoListaPelicula*auxLista=arregloUsuActivos[i].listaPelis;
-//        while(auxLista)
-//        {
-//            auxLista=auxLista->sig;
-//            cantPelisVistas++;
-//        }
-//
-//    }
-//
-//    return cantPelisVistas; // Se devuelve la cantidad de registros totales contados
-//}
+void borrarPeliVistaArchivo(int idUsr, int idPeli) // Valida si el id de la pelicula ingresada actualmente ya existe en el archivo
+{
+    stPelisVistas aux;
+
+    FILE * archi;
+
+    int flag=0;
+    archi=fopen(ARCHIPELISUSU, "rb"); // Abre al archivo en modo sólo lectura para chequear acceso
+
+    if(archi==NULL)
+    {
+        printf("No se pudo abrir el archivo para consultar si la pelicula ya existe");
+        exit(1);
+    }
+
+    else
+    {
+        while((!flag)&&(fread(&aux, sizeof(stPelisVistas), 1, archi)>0))  // Realiza el proceso mientras haya registros en el archivo
+        {
+            if(aux.idUsuario==idUsr&&aux.idPelicula==idPeli) // Si ambos ids son iguales, asigno valor 0 a flag como negativo
+            {
+                aux.idPelicula=-1;
+                aux.idUsuario=-1;
+                flag=1;
+                fseek(archi, -1*sizeof(stPelicula), SEEK_CUR);
+                fwrite(&aux, sizeof(stPelisVistas), 1, archi);
+            }
+        }
+        fclose(archi); // Cierra el archivo
+    }
+
+}
 
 int cantRegistrosTotales() // Función utilizada para contar la cantidad total de registros guardados en el archivo
 {
@@ -281,7 +216,7 @@ int buscarPosString(char arregloNombres[][20], char nombre[], int validos) // Re
 
     while(i<validos && (strcmp(nombre, arregloNombres[i])!=0))
     {
-        i++;
+            i++;
     }
     if (strcmp(nombre, arregloNombres[i])==0)
         pos=i;
@@ -336,7 +271,7 @@ void generoMasVisto(nodoListaPelicula*lista, char MasVisto[20])
     }
 
     pos= buscarMayorOcurrencia(ocurrencias,validos);
-    strcpy(MasVisto,generos[pos]);
+        strcpy(MasVisto,generos[pos]);
 
 }
 
@@ -367,32 +302,30 @@ void directorMasVisto(nodoListaPelicula*lista, char MasVisto[20])
     }
 
     pos= buscarMayorOcurrencia(ocurrencias,validos);
-    strcpy(MasVisto,directores[pos]);
+        strcpy(MasVisto,directores[pos]);
 
 }
 
-void recomendarPelis(nodoArbolPelicula*ArbolPelis, nodoListaPelicula*PelisVistas)
-{
+void recomendarPelis(nodoArbolPelicula*ArbolPelis, nodoListaPelicula*PelisVistas){
 
-    char genero[20];
-    char director[20];
-    generoMasVisto(PelisVistas,genero);
-    directorMasVisto(PelisVistas,director);
-    system("cls");
-    printf("El genero mas recomendado para usted es %s\n", genero);
-    printf("%s\n",director);
-    Sleep(2000);
-    listarPelisRecomendadasxGeneroDirector(PelisVistas,ArbolPelis,genero,director);
+char genero[20];
+char director[20];
+generoMasVisto(PelisVistas,genero);
+directorMasVisto(PelisVistas,director);
+system("cls");
+printf("El genero mas recomendado para usted es %s\n", genero);
+printf("%s\n",director);
+Sleep(2000);
+listarPelisRecomendadasxGeneroDirector(PelisVistas,ArbolPelis,genero,director);
 
 }
 
 int peliVista(int idPelicula,nodoListaPelicula *PelisVistas)
 {
     int flag=0;
-    while (PelisVistas && !flag)
-    {
+    while (PelisVistas && !flag) {
         if (idPelicula==PelisVistas->p.idPelicula)
-            flag=1;
+          flag=1;
         PelisVistas=PelisVistas->sig;
     }
     return flag;
@@ -402,90 +335,11 @@ void listarPelisRecomendadasxGeneroDirector(nodoListaPelicula *PelisVistas,nodoA
 {
     if (ArbolPelis)
     {
-        if ((strcmp(ArbolPelis->p.genero,genero) == 0) || (strcmp(ArbolPelis->p.director,director)==0))
-        {
+        if ((strcmp(ArbolPelis->p.genero,genero) == 0) || (strcmp(ArbolPelis->p.director,director)==0)) {
             if (!peliVista(ArbolPelis->p.idPelicula,PelisVistas))
                 imprimirNodoPelis(ArbolPelis->p);
         }
         listarPelisRecomendadasxGeneroDirector(PelisVistas,ArbolPelis->izq,genero,director);
         listarPelisRecomendadasxGeneroDirector(PelisVistas,ArbolPelis->der,genero,director);
     }
-}
-
-
-///NUEVAS
-
-
-void borrarPeliVistaArchivo(int idUsr, int idPeli) // Valida si el id de la pelicula ingresada actualmente ya existe en el archivo
-{
-    stPelisVistas aux;
-
-    FILE * archi;
-
-    int flag=0;
-    archi=fopen(ARCHIPELISUSU, "r+b"); // Abre al archivo en modo sólo lectura para chequear acceso
-
-    if(archi==NULL)
-    {
-        printf("No se pudo abrir el archivo para consultar si la pelicula ya existe");
-        exit(1);
-    }
-
-    else
-    {
-        while((!flag) && (fread(&aux, sizeof(stPelisVistas), 1, archi)>0))  // Realiza el proceso mientras haya registros en el archivo
-        {
-            if(aux.idUsuario==idUsr && aux.idPelicula==idPeli) // Si ambos ids son iguales, asigno valor 0 a flag como negativo
-            {
-                aux.idPelicula=-1;
-                aux.idUsuario=-1;
-                flag=1;
-                fseek(archi, -1*sizeof(stPelisVistas), SEEK_CUR);
-                fwrite(&aux, sizeof(stPelisVistas), 1, archi);
-            }
-        }
-        fclose(archi); // Cierra el archivo
-    }
-
-}
-
-
-
-nodoListaPelicula*borrarUnaPeliVistaLista(nodoListaPelicula*PelisVistas, int idPeli)
-{
-
-    if(PelisVistas)
-    {
-        if(PelisVistas->p.idPelicula==idPeli)  // Borra el primer nodo si coincide
-        {
-            nodoListaPelicula*aux=PelisVistas;
-            PelisVistas=PelisVistas->sig;
-            free(aux);
-        }
-        else                                    // Caso contrario itera hasta encontrarlo para borrarlo o llegar al final
-        {
-            nodoListaPelicula*seg=PelisVistas;
-            nodoListaPelicula *ante=PelisVistas;
-            while(seg!=NULL && seg->p.idPelicula!=idPeli)
-            {
-                ante = seg;
-                seg=seg->sig;
-            }
-            if(seg!=NULL)
-            {
-                ante->sig= seg->sig;
-                nodoListaPelicula*aux=seg;
-                free(aux);
-            }
-        }
-    }
-    return PelisVistas;
-}
-
-
-nodoListaPelicula * borrarPeliVistaXid(nodoListaPelicula*PelisVistas, int idUsu, int idPeli){
-
-borrarPeliVistaArchivo(idUsu, idPeli);
-PelisVistas=borrarUnaPeliVistaLista(PelisVistas, idPeli);
-return PelisVistas;
 }

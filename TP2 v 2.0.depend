@@ -132,7 +132,7 @@
 1541722004 source:c:\users\nmz\desktop\tp 2.3\cargainicial.c
 	"libreria.h"
 
-1542060449 c:\users\nmz\desktop\tp 2.3\libreria.h
+1542068662 c:\users\nmz\desktop\tp 2.3\libreria.h
 	<stdio.h>
 	<stdlib.h>
 	"string.h"
@@ -146,38 +146,12 @@
 1542060287 source:c:\users\nmz\desktop\tp 2.3\menues.c
 	"libreria.h"
 
-1542060037 source:c:\users\nmz\desktop\tp 2.3\pelisxuser.c
+1542069235 source:c:\users\nmz\desktop\tp 2.3\pelisxuser.c
 	"libreria.h"
 
-1542060037 source:c:\users\nmz\desktop\tp 2.3\usuarios.c
+1542069779 source:c:\users\nmz\desktop\tp 2.3\usuarios.c
 	"libreria.h"
 
-1542060037 source:c:\users\nmz\desktop\tp 2.3\peliculas.c
-	"libreria.h"
-
-1541722006 source:c:\users\valeria\desktop\tp 3.0 posta\cargainicial.c
-	"libreria.h"
-
-1542073877 c:\users\valeria\desktop\tp 3.0 posta\libreria.h
-	<stdio.h>
-	<stdlib.h>
-	"string.h"
-	"ctype.h"
-	<conio.h>
-	<windows.h>
-
-1541637692 source:c:\users\valeria\desktop\tp 3.0 posta\main.c
-	"libreria.h"
-
-1542074296 source:c:\users\valeria\desktop\tp 3.0 posta\menues.c
-	"libreria.h"
-
-1542060038 source:c:\users\valeria\desktop\tp 3.0 posta\peliculas.c
-	"libreria.h"
-
-1542072300 source:c:\users\valeria\desktop\tp 3.0 posta\pelisxuser.c
-	"libreria.h"
-
-1542072716 source:c:\users\valeria\desktop\tp 3.0 posta\usuarios.c
+1542071492 source:c:\users\nmz\desktop\tp 2.3\peliculas.c
 	"libreria.h"
 

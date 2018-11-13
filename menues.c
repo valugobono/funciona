@@ -35,13 +35,13 @@ void menuPrincipal()
             case 0:
                 exit(1);
             case 1:
-                arregloUsuActivos=altaUsuarios(arregloUsuActivos, &validos);
+                altaUsuarios(arregloUsuActivos, &validos);
                 break;
             case 2:
                 loginUser(arregloUsuActivos, validos, ArbolPelis);
                 break;
             case 3:
-                ArbolPelis=loguinadm(&arregloUsuActivos, &validos, ArbolPelis);
+                loguinadm(arregloUsuActivos, &validos, ArbolPelis);
                 break;
             default:
                 exit(1);
@@ -59,7 +59,7 @@ void menuPrincipal()
 ////                                                  FUNCIONES DE SUBMENUES / LOGIN
 ////***********************************************************************************************************************************//
 //
-nodoArbolPelicula * loguinadm(stCelda**arregloUsuActivos, int * validos, nodoArbolPelicula*ArbolPelis)
+void loguinadm(stCelda*arregloUsuActivos, int * validos, nodoArbolPelicula*ArbolPelis)
 {
     int login=0;
     char passaux[11];
@@ -75,14 +75,13 @@ nodoArbolPelicula * loguinadm(stCelda**arregloUsuActivos, int * validos, nodoArb
     login=validacionPassAdmin(passaux);
     if(login==1)
     {
-        ArbolPelis=menuAdmin(arregloUsuActivos,validos,ArbolPelis);
+        menuAdmin(arregloUsuActivos,validos,ArbolPelis);
     }
     else
     {
         printf("Login incorrecto \n");
         system("pause");
     }
- return ArbolPelis;
 }
 
 
@@ -132,9 +131,7 @@ void menuUsuario(stCelda * arregloUsuActivos, int validos, stUsuario usr, nodoAr
 {
 
 
-    int opcion=0, repetir=1, pos,idPeli;
-
-    pos=buscarPosUsuarioPorId(usr.idUsuario,arregloUsuActivos,validos);
+    int opcion=0, repetir=1, pos;
 
     do
     {
@@ -148,7 +145,6 @@ void menuUsuario(stCelda * arregloUsuActivos, int validos, stUsuario usr, nodoAr
         printf("\n\t 2) LISTADOS DE PELICULAS");
         printf("\n\t 3) BUSCAR PELICULA");
         printf("\n\t 4) VER PELICULAS RECOMENDADAS");
-        printf("\n\t 5) BORRAR PELICULA VISTA");
         printf("\n\t 0) VOLVER AL MENU ANTERIOR");
         printf("\n\n\t INGRESE SU OPCION: ");
         scanf("%i", &opcion);
@@ -178,20 +174,9 @@ void menuUsuario(stCelda * arregloUsuActivos, int validos, stUsuario usr, nodoAr
             break;
 
         case 4:
+            pos=buscarPosUsuarioPorId(usr.idUsuario,arregloUsuActivos,validos);
             recomendarPelis(ArbolPelis, arregloUsuActivos[pos].listaPelis);
             system("pause");
-            repetir=1;
-            break;
-
-        case 5:
-
-            system("cls");
-            printf("Esta es la lista de peliculas que vio: \n");
-            mostrarListaPelis(arregloUsuActivos[pos].listaPelis, usr.nombreUsuario);
-            printf("\nIngrese el ID de la pelicula a borrar de su lista: ");
-            fflush(stdin);
-            scanf("%i", &idPeli);
-            arregloUsuActivos[pos].listaPelis= borrarPeliVistaXid(arregloUsuActivos[pos].listaPelis,usr.idUsuario,idPeli);
             repetir=1;
             break;
 
@@ -203,7 +188,7 @@ void menuUsuario(stCelda * arregloUsuActivos, int validos, stUsuario usr, nodoAr
 }
 
 
-nodoArbolPelicula * menuAdmin(stCelda** arregloUsuActivos, int * validos, nodoArbolPelicula*ArbolPelis)
+void menuAdmin(stCelda* arregloUsuActivos, int * validos, nodoArbolPelicula*ArbolPelis)
 {
 
     int opcion=0,repetir=1;
@@ -231,31 +216,29 @@ nodoArbolPelicula * menuAdmin(stCelda** arregloUsuActivos, int * validos, nodoAr
             break;
 
         case 1:
-            ArbolPelis=menuAdminPelis(ArbolPelis);
+            menuAdminPelis(ArbolPelis);
             break;
 
         case 2:
-            *arregloUsuActivos= menuAdminUsuarios(*arregloUsuActivos, validos);
+            menuAdminUsuarios(arregloUsuActivos, validos);
             break;
 
         case 3:
             if(!(ArbolPelis=borrarArbol(ArbolPelis)))
             {
-                printf("\nEl arbol se borro correctamente\n");
+                printf("\nEl arbol se borro correctamente");
                 system("pause");
             }
             else
             {
-                printf("\nHubo un error al borrar el arbol\n");
+                printf("\nHubo un error al borrar el arbol");
             }
-            *arregloUsuActivos=borrarArregloUsu(*arregloUsuActivos, validos);
+//            arregloUsuActivos=borrarArregloUsu(arregloUsuActivos, validos);
             break;
 
         case 4:
             ArbolPelis=PasaPeliculasDeArchivoToArbol(ArbolPelis); // Pasa las películas del archivo al árbol
-            *arregloUsuActivos=cargarArchiUsuToArreglo(*arregloUsuActivos, validos, ArbolPelis); // Pasa los usuarios del archivo al arreglo de listas de usuarios/peliculas vistas
-            printf("\nSe restauro el sistema correctamente\n");
-            system("pause");
+//            arregloUsuActivos=cargarArchiUsuToArreglo(arregloUsuActivos, validos, ArbolPelis); // Pasa los usuarios del archivo al arreglo de listas de usuarios/peliculas vistas
             break;
 
         default:
@@ -263,12 +246,10 @@ nodoArbolPelicula * menuAdmin(stCelda** arregloUsuActivos, int * validos, nodoAr
         }
     }
     while(repetir==1);
-
- return ArbolPelis;
 }
 
 
-nodoArbolPelicula *menuAdminPelis(nodoArbolPelicula * ArbolPelis)
+void menuAdminPelis(nodoArbolPelicula * ArbolPelis)
 {
 
     int opcion=0,repetir=0;
@@ -326,10 +307,9 @@ nodoArbolPelicula *menuAdminPelis(nodoArbolPelicula * ArbolPelis)
         }
     }
     while(repetir==1);
-    return ArbolPelis;
 }
 
-stCelda * menuAdminUsuarios(stCelda*arregloUsuActivos, int *validos)
+void menuAdminUsuarios(stCelda*arregloUsuActivos, int * validos)
 {
 
     int opcion=0, repetir=1;
@@ -358,11 +338,11 @@ stCelda * menuAdminUsuarios(stCelda*arregloUsuActivos, int *validos)
             break;
 
         case 1:
-            arregloUsuActivos=altaUsuarios(arregloUsuActivos, validos);
+            altaUsuarios(arregloUsuActivos, validos);
             break;
 
         case 2:
-            bajaUsuario(arregloUsuActivos, *validos);
+            bajaUsuario(arregloUsuActivos, validos);
             break;
 
         case 3:
@@ -370,7 +350,7 @@ stCelda * menuAdminUsuarios(stCelda*arregloUsuActivos, int *validos)
             break;
 
         case 4:
-            consultarUsuario(arregloUsuActivos,*validos);
+            consultarUsuario(arregloUsuActivos,validos);
             break;
 
         case 5:
@@ -383,7 +363,6 @@ stCelda * menuAdminUsuarios(stCelda*arregloUsuActivos, int *validos)
         }
     }
     while(repetir==1);
-    return arregloUsuActivos;
 }
 
 
